@@ -1,124 +1,25 @@
 /*!
- * PricemonTicker — sticky top bar.
+ * PricemonTicker — thin bar at the top of every wiki page.
+ *
+ * Lives in normal document flow as the first child of <body>, so it occupies
+ * its own vertical space, pushes wiki chrome down naturally, and scrolls away
+ * with the page on scroll. We do NOT mess with the skin's positioning at all.
+ *
  * @license GPL-2.0-or-later
  */
 
-:root {
-	--pm-ticker-h: 28px;
-}
-
 #pm-ticker {
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	z-index: 100000; /* above Vector 2022's sticky header (z-index 6) */
-	height: var( --pm-ticker-h );
-	box-sizing: border-box;
 	display: flex;
 	gap: 1em;
 	align-items: center;
 	padding: 4px 12px;
+	height: 28px;
+	box-sizing: border-box;
 	font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
 	background: #111;
 	color: #eee;
 	border-bottom: 1px solid #333;
-	box-shadow: 0 1px 2px rgba( 0, 0, 0, 0.25 );
 	user-select: none;
-}
-
-/* Push the rest of the page down so nothing sits under the bar. */
-html {
-	scroll-padding-top: var( --pm-ticker-h );
-}
-
-body {
-	padding-top: var( --pm-ticker-h );
-}
-
-/*
- * MediaWiki's various top chromes use position: sticky/fixed at top: 0 and
- * therefore ignore body padding — they overlap the ticker on scroll (and in
- * Vector 2022's case, immediately). Push each known one down by the bar's
- * height. Cheap, surgical, and skin-agnostic enough.
- */
-
-/* Vector 2022 — sticky header container (logo / search / user menu strip). */
-.vector-header-container,
-.mw-header,
-.vector-sticky-header {
-	top: var( --pm-ticker-h ) !important;
-}
-
-/* Vector legacy + Monobook. */
-#mw-head,
-#mw-page-base,
-#mw-navigation {
-	top: var( --pm-ticker-h );
-}
-
-/*
- * Minerva / MinervaNeue (mobile / responsive skin). It uses a fixed header
- * at top: 0 with shifting class names across versions, so cast a wide net.
- */
-.minerva-header,
-.skin-minerva header,
-.skin-minerva > header,
-.skin-minerva .header-container,
-.skin-minerva .mw-header,
-.skin-minerva .branding-box,
-.skin-minerva .navigation-drawer,
-header.header-container,
-.header-container.header-chrome,
-.mw-mf-viewport > header,
-body.skin-minerva > .header {
-	top: var( --pm-ticker-h ) !important;
-}
-
-/* Tighter layout for narrow viewports — drop the timestamp, shrink padding. */
-@media ( max-width: 480px ) {
-	:root {
-		--pm-ticker-h: 24px;
-	}
-
-	#pm-ticker {
-		gap: 0.5em;
-		padding: 3px 8px;
-		font-size: 11px;
-	}
-
-	#pm-ticker .pm-ticker-age {
-		display: none;
-	}
-
-	#pm-ticker .pm-ticker-val {
-		font-size: 12px;
-	}
-}
-
-/*
- * Timeless skin: #mw-header-container is position: static at narrow viewports,
- * which makes `top` a no-op AND, worse, means its position: absolute children
- * (#p-logo-text and #user-tools) are anchored to the viewport rather than to
- * the header. Body padding-top pushes the container down but leaves those
- * abs children glued to viewport y=0, where the ticker eats them. Forcing
- * position: relative on the container turns it into a positioning context so
- * the abs children come along for the ride.
- *
- * No !important — Timeless's own scroll script can still upgrade this to
- * position: fixed via a more specific selector when needed.
- */
-html body #mw-header-container.ts-container {
-	position: relative;
-}
-
-/* For any other skin that uses an #mw-header-container wrapper as a fixed
- * top chrome (rather than Timeless's static layout), push it below the bar.
- * Targets the class form too, which some skin variants use. */
-html body #mw-header-container:not( .ts-container ),
-html body .mw-header-container,
-html body #mw-header-nav-hack {
-	top: var( --pm-ticker-h ) !important;
 }
 
 #pm-ticker .pm-ticker-label {
@@ -162,28 +63,24 @@ html body #mw-header-nav-hack {
 	white-space: nowrap;
 }
 
-/* Print: don't pollute printouts with the sticky bar. */
+/* Narrow viewports — compact layout, drop the timestamp. */
+@media ( max-width: 480px ) {
+	#pm-ticker {
+		gap: 0.5em;
+		padding: 3px 8px;
+		font-size: 11px;
+		height: 24px;
+	}
+
+	#pm-ticker .pm-ticker-age {
+		display: none;
+	}
+}
+
+/* Print: don't print the ticker. */
 @media print {
 	#pm-ticker {
 		display: none !important;
-	}
-
-	body {
-		padding-top: 0 !important;
-	}
-
-	.vector-header-container,
-	.mw-header,
-	.vector-sticky-header,
-	#mw-head,
-	#mw-page-base,
-	#mw-navigation,
-	.minerva-header,
-	.header-container.header-chrome,
-	#mw-header-container,
-	.mw-header-container,
-	#mw-header-nav-hack {
-		top: 0 !important;
 	}
 }
 

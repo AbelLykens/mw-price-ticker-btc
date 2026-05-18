@@ -40,73 +40,18 @@
 	bar.innerHTML = html;
 
 	function attach() {
-		document.documentElement.appendChild( bar );
-		pushSkinHeadersDown();
-		// Skins (and MediaWiki itself) sometimes mutate the header after first paint
-		// — e.g. Vector 2022 toggles the sticky header on scroll. Re-run on resize
-		// and a handful of times shortly after load to catch late-arriving elements.
-		window.addEventListener( 'resize', pushSkinHeadersDown );
-		[ 50, 250, 1000 ].forEach( function ( delay ) {
-			setTimeout( pushSkinHeadersDown, delay );
-		} );
+		// Insert the bar as the very first child of <body>. It lives in normal
+		// document flow, so it occupies its own vertical space, pushes wiki
+		// chrome down naturally, and scrolls away on scroll. We do NOT touch
+		// the skin's positioning — every overlap fight we tried (CSS overrides,
+		// runtime scans for fixed/sticky/absolute headers, position: relative
+		// promotion) broke on at least one skin variant. Stop fighting the DOM.
+		document.body.insertBefore( bar, document.body.firstChild );
 	}
 	if ( document.body ) {
 		attach();
 	} else {
 		document.addEventListener( 'DOMContentLoaded', attach );
-	}
-
-	/*
-	 * Skin DOMs vary wildly (Vector 2022, Vector legacy, MinervaNeue, Timeless,
-	 * Monobook, third-party skins…) and CSS selector whack-a-mole keeps missing
-	 * variants. Instead, scan for elements that are visually parked at the top
-	 * of the viewport via `position: fixed | sticky; top: ~0`, and shove them
-	 * down by the ticker's own height. Cheap, idempotent, and skin-agnostic.
-	 */
-	function pushSkinHeadersDown() {
-		if ( !document.body ) {
-			return;
-		}
-		var barH = bar.offsetHeight || 28;
-
-		// 1. Force body padding-top with !important so no skin stylesheet can
-		//    override it. This handles in-flow headers (position: static/relative)
-		//    in one go without us needing to know any selectors.
-		var bodyCs = window.getComputedStyle( document.body );
-		if ( parseFloat( bodyCs.paddingTop ) < barH - 1 ) {
-			document.body.style.setProperty( 'padding-top', barH + 'px', 'important' );
-		}
-
-		// 2. For elements that are positioned out of normal flow (fixed / sticky /
-		//    absolute), body padding doesn't help — they sit at top:0 of their
-		//    containing block. Find any still overlapping the bar and push them
-		//    down individually.
-		var nodes = document.querySelectorAll(
-			'body > header, body > div > header,' +
-			'.mw-header, .vector-header-container, .vector-sticky-header,' +
-			'.minerva-header, .header-container, .header-chrome,' +
-			'#mw-header-container, .mw-header-container, #mw-header-nav-hack,' +
-			'#mw-head, #mw-page-base, #mw-navigation'
-		);
-
-		nodes.forEach( function ( el ) {
-			if ( el === bar ) {
-				return;
-			}
-			// Skip elements already clear of the bar.
-			var rect = el.getBoundingClientRect();
-			if ( rect.top >= barH - 1 ) {
-				return;
-			}
-			var cs = window.getComputedStyle( el );
-			if ( cs.position === 'fixed' || cs.position === 'sticky' || cs.position === 'absolute' ) {
-				el.style.setProperty( 'top', barH + 'px', 'important' );
-			} else {
-				// Static / relative element somehow rendered at the viewport top
-				// despite body padding — fall back to a margin-top nudge.
-				el.style.setProperty( 'margin-top', barH + 'px', 'important' );
-			}
-		} );
 	}
 
 	var prev = Object.create( null );
