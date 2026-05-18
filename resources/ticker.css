@@ -96,9 +96,11 @@ body.skin-minerva > .header {
 	}
 }
 
-/* Timeless. */
-#mw-header-container {
-	top: var( --pm-ticker-h );
+/* Timeless (and any other skin that uses an #mw-header-container wrapper). */
+#mw-header-container,
+.mw-header-container,
+#mw-header-nav-hack {
+	top: var( --pm-ticker-h ) !important;
 }
 
 #pm-ticker .pm-ticker-label {
@@ -160,7 +162,9 @@ body.skin-minerva > .header {
 	#mw-navigation,
 	.minerva-header,
 	.header-container.header-chrome,
-	#mw-header-container {
+	#mw-header-container,
+	.mw-header-container,
+	#mw-header-nav-hack {
 		top: 0 !important;
 	}
 }
