@@ -1,0 +1,65 @@
+{
+	"name": "PricemonTicker",
+	"version": "0.1.0",
+	"author": [
+		"Abel Lykens"
+	],
+	"url": "https://github.com/AbelLykens/mw-price-ticker-btc",
+	"descriptionmsg": "pricemonticker-desc",
+	"license-name": "GPL-2.0-or-later",
+	"type": "other",
+	"requires": {
+		"MediaWiki": ">= 1.39.0"
+	},
+	"manifest_version": 2,
+	"AutoloadNamespaces": {
+		"MediaWiki\\Extension\\PricemonTicker\\": "src/"
+	},
+	"MessagesDirs": {
+		"PricemonTicker": [
+			"i18n"
+		]
+	},
+	"HookHandlers": {
+		"main": {
+			"class": "MediaWiki\\Extension\\PricemonTicker\\Hooks"
+		}
+	},
+	"Hooks": {
+		"BeforePageDisplay": "main"
+	},
+	"ResourceModules": {
+		"ext.pricemonTicker": {
+			"scripts": [
+				"ticker.js"
+			],
+			"styles": [
+				"ticker.css"
+			],
+			"dependencies": [
+				"mediawiki.util"
+			]
+		}
+	},
+	"ResourceFileModulePaths": {
+		"localBasePath": "resources",
+		"remoteExtPath": "PricemonTicker/resources"
+	},
+	"config": {
+		"PricemonTickerBase": {
+			"description": "Base URL of the pricemon instance (no trailing slash). The extension calls {base}/api/current/ for live prices.",
+			"value": "https://price.cheeserobot.org"
+		},
+		"PricemonTickerRefreshMs": {
+			"description": "How often (in milliseconds) the client polls the price API. Defaults to 15000 (15 s).",
+			"value": 15000
+		},
+		"PricemonTickerPairs": {
+			"description": "Array of [fiat-code, display-symbol] pairs shown in the bar, in order.",
+			"value": [
+				["USD", "$"],
+				["EUR", "€"]
+			]
+		}
+	}
+}

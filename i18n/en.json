@@ -1,0 +1,8 @@
+{
+	"@metadata": {
+		"authors": [
+			"Abel Lykens"
+		]
+	},
+	"pricemonticker-desc": "Sticky top bar showing live BTC prices from a pricemon instance."
+}

@@ -1,0 +1,18 @@
+# OS / editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# PHP tooling
+/vendor/
+composer.lock
+
+# Node / build (none used, but keep just in case someone adds tooling)
+/node_modules/
+npm-debug.log*
+yarn-error.log

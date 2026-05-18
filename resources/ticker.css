@@ -1,0 +1,90 @@
+/*!
+ * PricemonTicker — sticky top bar.
+ * @license GPL-2.0-or-later
+ */
+
+#pm-ticker {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 10000;
+	display: flex;
+	gap: 1em;
+	align-items: center;
+	padding: 4px 12px;
+	font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+	background: #111;
+	color: #eee;
+	border-bottom: 1px solid #333;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+	user-select: none;
+}
+
+/* Push the page down so the bar doesn't overlap the wiki chrome. */
+html {
+	scroll-padding-top: 28px;
+}
+
+body {
+	padding-top: 28px;
+}
+
+#pm-ticker .pm-ticker-label {
+	font-weight: 600;
+	color: #f7931a; /* Bitcoin orange */
+	letter-spacing: 0.02em;
+}
+
+#pm-ticker .pm-ticker-pair {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 0.15em;
+	transition: color 0.6s ease;
+	font-variant-numeric: tabular-nums;
+}
+
+#pm-ticker .pm-ticker-sym {
+	opacity: 0.6;
+}
+
+#pm-ticker .pm-ticker-val {
+	font-weight: 500;
+}
+
+#pm-ticker .pm-ticker-pair.pm-up {
+	color: #4ade80;
+}
+
+#pm-ticker .pm-ticker-pair.pm-down {
+	color: #f87171;
+}
+
+#pm-ticker .pm-ticker-pair.pm-stale {
+	opacity: 0.5;
+}
+
+#pm-ticker .pm-ticker-age {
+	margin-left: auto;
+	opacity: 0.55;
+	font-size: 11px;
+	white-space: nowrap;
+}
+
+/* Print: don't pollute printouts with the sticky bar. */
+@media print {
+	#pm-ticker {
+		display: none !important;
+	}
+
+	body {
+		padding-top: 0 !important;
+	}
+}
+
+/* Respect users who prefer reduced motion. */
+@media ( prefers-reduced-motion: reduce ) {
+	#pm-ticker .pm-ticker-pair {
+		transition: none;
+	}
+}
