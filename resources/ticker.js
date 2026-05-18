@@ -69,8 +69,18 @@
 		}
 		var barH = bar.offsetHeight || 28;
 
-		// Limit the scan to plausible top-chrome containers to avoid pushing
-		// unrelated fixed widgets (notifications, modals, edit toolbars…).
+		// 1. Force body padding-top with !important so no skin stylesheet can
+		//    override it. This handles in-flow headers (position: static/relative)
+		//    in one go without us needing to know any selectors.
+		var bodyCs = window.getComputedStyle( document.body );
+		if ( parseFloat( bodyCs.paddingTop ) < barH - 1 ) {
+			document.body.style.setProperty( 'padding-top', barH + 'px', 'important' );
+		}
+
+		// 2. For elements that are positioned out of normal flow (fixed / sticky /
+		//    absolute), body padding doesn't help — they sit at top:0 of their
+		//    containing block. Find any still overlapping the bar and push them
+		//    down individually.
 		var nodes = document.querySelectorAll(
 			'body > header, body > div > header,' +
 			'.mw-header, .vector-header-container, .vector-sticky-header,' +
@@ -83,19 +93,18 @@
 			if ( el === bar ) {
 				return;
 			}
-			var cs = window.getComputedStyle( el );
-			// Timeless uses position: absolute for its header at narrow viewports,
-			// so accept absolute in addition to fixed/sticky.
-			if ( cs.position !== 'fixed' && cs.position !== 'sticky' && cs.position !== 'absolute' ) {
+			// Skip elements already clear of the bar.
+			var rect = el.getBoundingClientRect();
+			if ( rect.top >= barH - 1 ) {
 				return;
 			}
-			var t = parseFloat( cs.top );
-			if ( !isFinite( t ) ) {
-				t = 0;
-			}
-			// Only adjust elements currently sitting under the bar.
-			if ( t < barH - 1 ) {
+			var cs = window.getComputedStyle( el );
+			if ( cs.position === 'fixed' || cs.position === 'sticky' || cs.position === 'absolute' ) {
 				el.style.setProperty( 'top', barH + 'px', 'important' );
+			} else {
+				// Static / relative element somehow rendered at the viewport top
+				// despite body padding — fall back to a margin-top nudge.
+				el.style.setProperty( 'margin-top', barH + 'px', 'important' );
 			}
 		} );
 	}
