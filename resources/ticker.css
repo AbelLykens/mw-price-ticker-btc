@@ -57,10 +57,43 @@ body {
 	top: var( --pm-ticker-h );
 }
 
-/* Minerva (mobile / responsive skin). */
+/*
+ * Minerva / MinervaNeue (mobile / responsive skin). It uses a fixed header
+ * at top: 0 with shifting class names across versions, so cast a wide net.
+ */
 .minerva-header,
-.header-container.header-chrome {
+.skin-minerva header,
+.skin-minerva > header,
+.skin-minerva .header-container,
+.skin-minerva .mw-header,
+.skin-minerva .branding-box,
+.skin-minerva .navigation-drawer,
+header.header-container,
+.header-container.header-chrome,
+.mw-mf-viewport > header,
+body.skin-minerva > .header {
 	top: var( --pm-ticker-h ) !important;
+}
+
+/* Tighter layout for narrow viewports — drop the timestamp, shrink padding. */
+@media ( max-width: 480px ) {
+	:root {
+		--pm-ticker-h: 24px;
+	}
+
+	#pm-ticker {
+		gap: 0.5em;
+		padding: 3px 8px;
+		font-size: 11px;
+	}
+
+	#pm-ticker .pm-ticker-age {
+		display: none;
+	}
+
+	#pm-ticker .pm-ticker-val {
+		font-size: 12px;
+	}
 }
 
 /* Timeless. */
