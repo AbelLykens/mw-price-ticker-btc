@@ -42,6 +42,14 @@ class Hooks implements BeforePageDisplayHook {
 			'wgPricemonTickerPairs'     => $cfg->get( 'PricemonTickerPairs' ),
 		] );
 
+		// Load the CSS synchronously in <head> so body padding and skin-chrome
+		// offsets are applied before first paint — without this, the page renders
+		// at viewport y=0, then jumps down 28px when ticker.js runs and the styles
+		// module finishes loading. Render-blocking is acceptable here: the CSS is
+		// tiny (~2 KB) and avoids a visible reflow on every page load.
+		$out->addModuleStyles( 'ext.pricemonTicker' );
+
+		// JS still loads async via mw.loader after the document is interactive.
 		$out->addModules( 'ext.pricemonTicker' );
 	}
 }
