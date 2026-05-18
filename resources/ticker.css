@@ -97,14 +97,27 @@ body.skin-minerva > .header {
 }
 
 /*
- * Timeless (and any other skin that uses an #mw-header-container wrapper).
- * The `html body` prefix bumps specificity so the override wins against any
- * inline style the skin's own JS may apply during scroll.
+ * Timeless skin: #mw-header-container is position: static at narrow viewports,
+ * which makes `top` a no-op AND, worse, means its position: absolute children
+ * (#p-logo-text and #user-tools) are anchored to the viewport rather than to
+ * the header. Body padding-top pushes the container down but leaves those
+ * abs children glued to viewport y=0, where the ticker eats them. Forcing
+ * position: relative on the container turns it into a positioning context so
+ * the abs children come along for the ride.
+ *
+ * No !important — Timeless's own scroll script can still upgrade this to
+ * position: fixed via a more specific selector when needed.
  */
-html body #mw-header-container,
-html body .mw-header-container,
-html body #mw-header-nav-hack,
 html body #mw-header-container.ts-container {
+	position: relative;
+}
+
+/* For any other skin that uses an #mw-header-container wrapper as a fixed
+ * top chrome (rather than Timeless's static layout), push it below the bar.
+ * Targets the class form too, which some skin variants use. */
+html body #mw-header-container:not( .ts-container ),
+html body .mw-header-container,
+html body #mw-header-nav-hack {
 	top: var( --pm-ticker-h ) !important;
 }
 
