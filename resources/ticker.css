@@ -96,10 +96,15 @@ body.skin-minerva > .header {
 	}
 }
 
-/* Timeless (and any other skin that uses an #mw-header-container wrapper). */
-#mw-header-container,
-.mw-header-container,
-#mw-header-nav-hack {
+/*
+ * Timeless (and any other skin that uses an #mw-header-container wrapper).
+ * The `html body` prefix bumps specificity so the override wins against any
+ * inline style the skin's own JS may apply during scroll.
+ */
+html body #mw-header-container,
+html body .mw-header-container,
+html body #mw-header-nav-hack,
+html body #mw-header-container.ts-container {
 	top: var( --pm-ticker-h ) !important;
 }
 

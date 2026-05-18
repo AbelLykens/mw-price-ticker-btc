@@ -84,7 +84,9 @@
 				return;
 			}
 			var cs = window.getComputedStyle( el );
-			if ( cs.position !== 'fixed' && cs.position !== 'sticky' ) {
+			// Timeless uses position: absolute for its header at narrow viewports,
+			// so accept absolute in addition to fixed/sticky.
+			if ( cs.position !== 'fixed' && cs.position !== 'sticky' && cs.position !== 'absolute' ) {
 				return;
 			}
 			var t = parseFloat( cs.top );
