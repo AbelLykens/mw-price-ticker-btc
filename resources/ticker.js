@@ -41,11 +41,61 @@
 
 	function attach() {
 		document.documentElement.appendChild( bar );
+		pushSkinHeadersDown();
+		// Skins (and MediaWiki itself) sometimes mutate the header after first paint
+		// — e.g. Vector 2022 toggles the sticky header on scroll. Re-run on resize
+		// and a handful of times shortly after load to catch late-arriving elements.
+		window.addEventListener( 'resize', pushSkinHeadersDown );
+		[ 50, 250, 1000 ].forEach( function ( delay ) {
+			setTimeout( pushSkinHeadersDown, delay );
+		} );
 	}
 	if ( document.body ) {
 		attach();
 	} else {
 		document.addEventListener( 'DOMContentLoaded', attach );
+	}
+
+	/*
+	 * Skin DOMs vary wildly (Vector 2022, Vector legacy, MinervaNeue, Timeless,
+	 * Monobook, third-party skins…) and CSS selector whack-a-mole keeps missing
+	 * variants. Instead, scan for elements that are visually parked at the top
+	 * of the viewport via `position: fixed | sticky; top: ~0`, and shove them
+	 * down by the ticker's own height. Cheap, idempotent, and skin-agnostic.
+	 */
+	function pushSkinHeadersDown() {
+		if ( !document.body ) {
+			return;
+		}
+		var barH = bar.offsetHeight || 28;
+
+		// Limit the scan to plausible top-chrome containers to avoid pushing
+		// unrelated fixed widgets (notifications, modals, edit toolbars…).
+		var nodes = document.querySelectorAll(
+			'body > header, body > div > header,' +
+			'.mw-header, .vector-header-container, .vector-sticky-header,' +
+			'.minerva-header, .header-container, .header-chrome,' +
+			'#mw-header-container, .mw-header-container, #mw-header-nav-hack,' +
+			'#mw-head, #mw-page-base, #mw-navigation'
+		);
+
+		nodes.forEach( function ( el ) {
+			if ( el === bar ) {
+				return;
+			}
+			var cs = window.getComputedStyle( el );
+			if ( cs.position !== 'fixed' && cs.position !== 'sticky' ) {
+				return;
+			}
+			var t = parseFloat( cs.top );
+			if ( !isFinite( t ) ) {
+				t = 0;
+			}
+			// Only adjust elements currently sitting under the bar.
+			if ( t < barH - 1 ) {
+				el.style.setProperty( 'top', barH + 'px', 'important' );
+			}
+		} );
 	}
 
 	var prev = Object.create( null );
