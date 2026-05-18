@@ -3,12 +3,18 @@
  * @license GPL-2.0-or-later
  */
 
+:root {
+	--pm-ticker-h: 28px;
+}
+
 #pm-ticker {
 	position: fixed;
 	top: 0;
 	left: 0;
 	right: 0;
-	z-index: 10000;
+	z-index: 100000; /* above Vector 2022's sticky header (z-index 6) */
+	height: var( --pm-ticker-h );
+	box-sizing: border-box;
 	display: flex;
 	gap: 1em;
 	align-items: center;
@@ -17,17 +23,49 @@
 	background: #111;
 	color: #eee;
 	border-bottom: 1px solid #333;
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+	box-shadow: 0 1px 2px rgba( 0, 0, 0, 0.25 );
 	user-select: none;
 }
 
-/* Push the page down so the bar doesn't overlap the wiki chrome. */
+/* Push the rest of the page down so nothing sits under the bar. */
 html {
-	scroll-padding-top: 28px;
+	scroll-padding-top: var( --pm-ticker-h );
 }
 
 body {
-	padding-top: 28px;
+	padding-top: var( --pm-ticker-h );
+}
+
+/*
+ * MediaWiki's various top chromes use position: sticky/fixed at top: 0 and
+ * therefore ignore body padding — they overlap the ticker on scroll (and in
+ * Vector 2022's case, immediately). Push each known one down by the bar's
+ * height. Cheap, surgical, and skin-agnostic enough.
+ */
+
+/* Vector 2022 — sticky header container (logo / search / user menu strip). */
+.vector-header-container,
+.mw-header,
+.vector-sticky-header {
+	top: var( --pm-ticker-h ) !important;
+}
+
+/* Vector legacy + Monobook. */
+#mw-head,
+#mw-page-base,
+#mw-navigation {
+	top: var( --pm-ticker-h );
+}
+
+/* Minerva (mobile / responsive skin). */
+.minerva-header,
+.header-container.header-chrome {
+	top: var( --pm-ticker-h ) !important;
+}
+
+/* Timeless. */
+#mw-header-container {
+	top: var( --pm-ticker-h );
 }
 
 #pm-ticker .pm-ticker-label {
@@ -79,6 +117,18 @@ body {
 
 	body {
 		padding-top: 0 !important;
+	}
+
+	.vector-header-container,
+	.mw-header,
+	.vector-sticky-header,
+	#mw-head,
+	#mw-page-base,
+	#mw-navigation,
+	.minerva-header,
+	.header-container.header-chrome,
+	#mw-header-container {
+		top: 0 !important;
 	}
 }
 
